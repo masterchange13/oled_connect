@@ -37,6 +37,7 @@ use ssd1306::{mode::BufferedGraphicsMode, prelude::*, I2CDisplayInterface, Ssd13
 use esp_hal::i2c::master::{I2c, Config};
 
 use esp_hal::uart::{Uart, Config as UartConfig};
+use esp_hal::gpio::{Output, Level, OutputConfig};
 
 #[main]
 fn main() -> ! {
@@ -45,14 +46,21 @@ fn main() -> ! {
     let config = esp_hal::Config::default().with_cpu_clock(CpuClock::max());
     let _peripherals = esp_hal::init(config);
 
+    let (rx, tx) = unsafe { _peripherals.GPIO2.split() };
+
     let mut uart = Uart::new(_peripherals.UART0, UartConfig::default())
         .unwrap() // 初始化失败时直接 panic
-        .with_rx(_peripherals.GPIO1)
-        .with_tx(_peripherals.GPIO2);
+        .with_rx(rx)
+        .with_tx(tx);
 
 
     let sda = _peripherals.GPIO21;
     let scl = _peripherals.GPIO22;
+
+    //供电
+    let mut led = Output::new(_peripherals.GPIO26, Level::Low, OutputConfig::default());
+
+    // led.set_high();
 
     // 使用 match 处理 Result
     let i2c = match I2c::new(_peripherals.I2C0, Config::default()) {
@@ -131,6 +139,8 @@ fn main() -> ! {
                     1 => {
                         Text::with_baseline("Hello!", Point::new(0, 0), text_style, Baseline::Top)
                             .draw(&mut display).unwrap();
+
+                        led.set_high();
                     },
                     2 => {
                         Text::with_baseline("World!", Point::new(0, 0), text_style, Baseline::Top)
