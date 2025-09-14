@@ -46,7 +46,8 @@ fn main() -> ! {
     let config = esp_hal::Config::default().with_cpu_clock(CpuClock::max());
     let _peripherals = esp_hal::init(config);
 
-    let (rx, tx) = unsafe { _peripherals.GPIO2.split() };
+    let rx = _peripherals.GPIO3;
+    let tx = _peripherals.GPIO1;
 
     let mut uart = Uart::new(_peripherals.UART0, UartConfig::default())
         .unwrap() // 初始化失败时直接 panic
@@ -102,20 +103,23 @@ fn main() -> ! {
         //  .stroke_color(Rgb888::BLACK)
          .stroke_width(6)
          .build();
-    let mut display_rectangle = MockDisplay::new();
+    // let mut display_rectangle = MockDisplay::new();
     // Draw a filled square
     Rectangle::new(Point::new(10, 10), Size::new(50, 50))
-         .into_styled(style)
-         .draw(&mut display_rectangle);
+        .into_styled(style)
+        .draw(&mut display)
+        .unwrap();
 
 
 
 
     let circle = Circle::new(Point::new(0, 0), 40);
     let mut display_circle = MockDisplay::from_points(circle.points(), BinaryColor::On);
-    Rectangle::new(Point::new(10, 10), Size::new(50, 50))
+
+    Circle::new(Point::new(0, 0), 40)
         .into_styled(style)
-        .draw(&mut display_circle);
+        .draw(&mut display)
+        .unwrap();
 
 
 
