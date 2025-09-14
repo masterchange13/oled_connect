@@ -149,6 +149,8 @@ fn main() -> ! {
                     2 => {
                         Text::with_baseline("World!", Point::new(0, 0), text_style, Baseline::Top)
                             .draw(&mut display).unwrap();
+
+                        led.set_low();
                     },
                     3 => {
                         Text::with_baseline("ESP32 + Rust!", Point::new(0, 0), text_style, Baseline::Top)
